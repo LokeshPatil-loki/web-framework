@@ -1,7 +1,8 @@
-import axios, { AxiosResponse } from "axios";
+import { Model } from "./Model";
 import { Attributes } from "./Attributes";
 import { Eventnig } from "./Eventing";
-import { Sync } from "./Sync";
+import { APISync } from "./APISync";
+import { Collection } from "./Collection";
 
 export interface UserProps {
   id?: number;
@@ -10,11 +11,20 @@ export interface UserProps {
 }
 const rootUrl: string = "http://localhost:3000/users";
 
-export class User {
-  public sync: Sync<UserProps> = new Sync<UserProps>(rootUrl);
-  public events: Eventnig = new Eventnig();
-  public attributes: Attributes<UserProps>;
-  constructor(attr: UserProps) {
-    this.attributes = new Attributes<UserProps>(attr);
+export class User extends Model<UserProps> {
+  static buildUserCollection(): Collection<User, UserProps> {
+    return new Collection<User, UserProps>(rootUrl, User.buildUser);
+  }
+
+  static buildUser(attrs: UserProps): User {
+    return new User(
+      new Attributes<UserProps>(attrs),
+      new Eventnig(),
+      new APISync<UserProps>(rootUrl)
+    );
+  }
+
+  isAdminUser(): boolean {
+    return this.get("id") === 1;
   }
 }
