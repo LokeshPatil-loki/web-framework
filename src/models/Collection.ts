@@ -16,12 +16,17 @@ export class Collection<T, K> {
     return this.events.trigger;
   }
 
-  async fetch(): Promise<void> {
+  fetch(): void {
     axios.get(this.rootUrl).then((response: AxiosResponse) => {
       response.data.forEach((value: K) => {
         this.models.push(this.deserialize(value));
       });
       this.trigger("change");
     });
+    // const response: AxiosResponse = await axios.get(this.rootUrl);
+    // response.data.forEach((value: K) => {
+    //   this.models.push(this.deserialize(value));
+    // });
+    // this.trigger("change");
   }
 }
